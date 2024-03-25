@@ -11387,19 +11387,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\hp\\.nuget\\packages\\": {}
+    "C:\\Users\\Lenovo\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\hp\\source\\repos\\ScooterManagementSystemApp\\DBSD_CW2\\ScooterManagementApp\\ScooterManagementApp\\ScooterManagementApp.csproj",
+      "projectUniqueName": "C:\\Users\\Lenovo\\Desktop\\DBSD\\DBSD_CW2\\ScooterManagementApp\\ScooterManagementApp\\ScooterManagementApp.csproj",
       "projectName": "ScooterManagementApp",
-      "projectPath": "C:\\Users\\hp\\source\\repos\\ScooterManagementSystemApp\\DBSD_CW2\\ScooterManagementApp\\ScooterManagementApp\\ScooterManagementApp.csproj",
-      "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\hp\\source\\repos\\ScooterManagementSystemApp\\DBSD_CW2\\ScooterManagementApp\\ScooterManagementApp\\obj\\",
+      "projectPath": "C:\\Users\\Lenovo\\Desktop\\DBSD\\DBSD_CW2\\ScooterManagementApp\\ScooterManagementApp\\ScooterManagementApp.csproj",
+      "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Lenovo\\Desktop\\DBSD\\DBSD_CW2\\ScooterManagementApp\\ScooterManagementApp\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -11419,6 +11424,11 @@
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -11471,7 +11481,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.202\\RuntimeIdentifierGraph.json"
       }
     }
   }

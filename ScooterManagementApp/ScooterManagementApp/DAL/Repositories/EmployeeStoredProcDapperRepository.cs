@@ -14,31 +14,53 @@ namespace ScooterManagementApp.DAL.Repositories
             _connStr = connStr;
         }
 
-        public void Delete(int id)
+        public async Task Delete(int eId)
         {
-            throw new NotImplementedException();
+            using var conn = new SqlConnection(_connStr);
+            var parameters = new DynamicParameters();
+            parameters.AddDynamicParams(new
+            {
+                EmployeeId = eId
+            });
+            parameters.Add(
+                "@Errors",
+                direction: ParameterDirection.Output,
+                dbType: DbType.String,
+                size: 1000);
+            parameters.Add(
+                "RetVal",
+                direction: ParameterDirection.ReturnValue,
+                dbType: DbType.Int32);
+
+            int id = await conn.ExecuteScalarAsync<int>(
+                "udpDeleteEmployee",
+                commandType: CommandType.StoredProcedure,
+                param: parameters
+                );
+
+            if (parameters.Get<int>("RetVal") != 0)
+            {
+                throw new Exception(parameters.Get<string>("Errors"));
+            }
         }
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
             using var conn = new SqlConnection(_connStr);
-            return await conn.QueryAsync<Employee>(
+            return (await conn.QueryAsync<Employee>(
                 "udpGetAllEmployees",
                 commandType: CommandType.StoredProcedure
-                );
+                )).ToList();
         }
 
-        public IAsyncEnumerable<Employee> GetAllAsync2()
+        public async Task<Employee?> GetById(int id)
         {
-            throw new NotImplementedException();
+            var employees = await GetAllAsync();
+            var emp = employees.FirstOrDefault(e=> e.EmployeeId == id);
+            return emp;
         }
 
-        public Employee? GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Insert(Employee emp)
+        public async Task<int> Insert(Employee emp)
         {
             using var conn = new SqlConnection(_connStr);
             var parameters = new DynamicParameters();
@@ -63,7 +85,7 @@ namespace ScooterManagementApp.DAL.Repositories
                 direction: ParameterDirection.ReturnValue,
                 dbType: DbType.Int32);
 
-            int id = conn.ExecuteScalar<int>(
+            int id = await conn.ExecuteScalarAsync<int>(
                 "udpInsertEmployee",
                 commandType: CommandType.StoredProcedure,
                 param: parameters
@@ -77,9 +99,42 @@ namespace ScooterManagementApp.DAL.Repositories
             return id;
         }
 
-        public void Update(Employee emp)
+        public async Task Update(Employee emp)
         {
-            throw new NotImplementedException();
+            using var conn = new SqlConnection(_connStr);
+            var parameters = new DynamicParameters();
+            parameters.AddDynamicParams(new
+            {
+                emp.EmployeeId,
+                emp.FirstName,
+                emp.LastName,
+                emp.DateEmployed,
+                emp.Position,
+                emp.Salary,
+                emp.IsActive,
+                emp.ProfilePicture,
+                emp.StationId
+            });
+            parameters.Add(
+                "@Errors",
+                direction: ParameterDirection.Output,
+                dbType: DbType.String,
+                size: 1000);
+            parameters.Add(
+                "RetVal",
+                direction: ParameterDirection.ReturnValue,
+                dbType: DbType.Int32);
+
+            int id = await conn.ExecuteScalarAsync<int>(
+                "udpUpdateEmployee",
+                commandType: CommandType.StoredProcedure,
+                param: parameters
+                );
+
+            if (parameters.Get<int>("RetVal") != 0)
+            {
+                throw new Exception(parameters.Get<string>("Errors"));
+            }
         }
     }
 }

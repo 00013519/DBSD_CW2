@@ -9,7 +9,7 @@
         public required string Position { get; set; }
         public decimal Salary { get; set; }
         public bool IsActive { get; set; }
-        public IFormFile ProfilePicture { get; set; }
+        public IFormFile? ProfilePicture { get; set; }
         public int StationId { get; set; } // Foreign Key
     }
 }

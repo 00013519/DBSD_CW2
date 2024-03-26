@@ -3,6 +3,7 @@ using NuGet.Protocol.Core.Types;
 using ScooterManagementApp.DAL.Models;
 using ScooterManagementApp.DAL.Repositories;
 using ScooterManagementApp.Models;
+using System;
 
 namespace ScooterManagementApp.Controllers
 {
@@ -61,19 +62,61 @@ namespace ScooterManagementApp.Controllers
                 return View(emp);
             }
         }
-
         public async Task<IActionResult> Edit(int id)
         {
-            var employee = await _employeeRepository.GetById(id);
-            return View(employee);
+            var emp = await _employeeRepository.GetById(id);
+            if (emp != null)
+            {
+                var e = new EmployeeViewModel()
+                {
+                    EmployeeId = emp.EmployeeId,
+                    DateEmployed = emp.DateEmployed,
+                    FirstName = emp.FirstName,
+                    LastName = emp.LastName,
+                    ProfilePicture = null,
+                    Position = emp.Position,
+                    Salary = emp.Salary,
+                    IsActive = emp.IsActive,
+                    StationId = emp.StationId
+                };
+                return View(e);
+            }
+            return NotFound();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Employee emp)
+        public async Task<IActionResult> Edit(EmployeeViewModel emp)
         {
             try
             {
-                await _employeeRepository.Update(emp);
+                byte[]? photoBytes = null;
+                if (emp.ProfilePicture != null)
+                {
+                    using (var stream = new MemoryStream())
+                    {
+                        emp.ProfilePicture.CopyTo(stream);
+                        photoBytes = stream.ToArray();
+                    }
+                }
+                else
+                {
+                    var e = await _employeeRepository.GetById(emp.EmployeeId);
+                    photoBytes = e?.ProfilePicture;
+                }
+                var employee = new Employee()
+                {
+                    EmployeeId = emp.EmployeeId,
+                    DateEmployed = emp.DateEmployed,
+                    FirstName = emp.FirstName,
+                    LastName = emp.LastName,
+                    ProfilePicture = photoBytes,
+                    Position = emp.Position,
+                    Salary = emp.Salary,
+                    IsActive = emp.IsActive,
+                    StationId = emp.StationId
+                };
+
+                await _employeeRepository.Update(employee);
                 return RedirectToAction("Details", new { id = emp.EmployeeId });
             }
             catch (Exception ex)

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ScooterManagementApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+85247451d8c399cf8dc765e3da2e3cfb47d6d1f8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d7222363f603858236e421858c7f57df4a937f20")]
 [assembly: System.Reflection.AssemblyProductAttribute("ScooterManagementApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ScooterManagementApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

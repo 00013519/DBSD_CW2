@@ -11,8 +11,8 @@ namespace ScooterManagementApp.DAL.Models
         public required string Position { get; set; }
         public decimal Salary { get; set; }
         public bool IsActive { get; set; }
-        public byte[] ProfilePicture { get; set; }
-        public int StationId { get; set; } // Foreign Key
+        public byte[]? ProfilePicture { get; set; }
+        public int StationId { get; set; }
     }
 
 }

@@ -75,6 +75,7 @@ namespace ScooterManagementApp.DAL.Repositories
                 emp.ProfilePicture,
                 emp.StationId
             });
+
             parameters.Add(
                 "@Errors",
                 direction: ParameterDirection.Output,

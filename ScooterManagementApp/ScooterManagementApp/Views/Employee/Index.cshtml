@@ -67,15 +67,18 @@
                 @Html.DisplayFor(modelItem => item.IsActive)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ProfilePicture)
+                @if (item.ProfilePicture != null)
+                {
+                    <img src="@Url.Action("ShowImage", new { id = item.EmployeeId })" style="max-width: 5rem; border-radius: 1rem;" />
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.StationId)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id=item.EmployeeId }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.EmployeeId }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.EmployeeId })
+                @Html.ActionLink("Details", "Details", new { id = item.EmployeeId }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.EmployeeId })
             </td>
         </tr>
 }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
 using ScooterManagementApp.DAL.Models;
 using ScooterManagementApp.DAL.Repositories;
+using ScooterManagementApp.Models;
 
 namespace ScooterManagementApp.Controllers
 {
@@ -25,13 +27,33 @@ namespace ScooterManagementApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Employee emp)
+        public async Task<IActionResult> Create(EmployeeViewModel emp)
         {
             try
             {
-                int id = await _employeeRepository.Insert(emp);
-                // return RedirectToAction("Details", new { id = id});
-                return RedirectToAction("Index");
+                byte[] photoBytes = null;
+                if (emp.ProfilePicture != null)
+                {
+                    using (var stream = new MemoryStream())
+                    {
+                        emp.ProfilePicture.CopyTo(stream);
+                        photoBytes = stream.ToArray();
+                    }
+                }
+                var employee = new Employee()
+                {
+                    EmployeeId = emp.EmployeeId,
+                    DateEmployed = emp.DateEmployed,
+                    FirstName = emp.FirstName,
+                    LastName = emp.LastName,
+                    ProfilePicture = photoBytes,
+                    Position = emp.Position,
+                    Salary = emp.Salary,
+                    IsActive = emp.IsActive,
+                    StationId = emp.StationId
+                };
+                int id = await _employeeRepository.Insert(employee);
+                return RedirectToAction("Details", new { id = id });
             }
             catch (Exception ex)
             {
@@ -52,8 +74,7 @@ namespace ScooterManagementApp.Controllers
             try
             {
                 await _employeeRepository.Update(emp);
-                // return RedirectToAction("Details", new { id = emp.EmployeeId });
-                return RedirectToAction("Index");
+                return RedirectToAction("Details", new { id = emp.EmployeeId });
             }
             catch (Exception ex)
             {
@@ -78,6 +99,15 @@ namespace ScooterManagementApp.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+        public async Task<FileResult?> ShowImage(int id)
+        {
+            var emp = await _employeeRepository.GetById(id);
+            if (emp?.ProfilePicture != null)
+            {
+                return File(emp.ProfilePicture, "image/jpeg", $"employee{id}.jpg");
+            }
+            return null;
         }
     }
 }

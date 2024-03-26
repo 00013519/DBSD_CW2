@@ -9,7 +9,7 @@ string connStr = config.GetConnectionString("Scooter")
     .Replace("|DataDirectory|", builder.Environment.ContentRootPath);
 
 
-builder.Services.AddSingleton<IEmployeeRepository>(
+builder.Services.AddScoped<IEmployeeRepository>(
     x => new EmployeeStoredProcDapperRepository(connStr)
     );
 // Add services to the container.
@@ -34,6 +34,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Employee}/{action=Index}/{id?}");
 
 app.Run();

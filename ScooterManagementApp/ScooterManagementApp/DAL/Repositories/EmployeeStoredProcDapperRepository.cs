@@ -44,6 +44,39 @@ namespace ScooterManagementApp.DAL.Repositories
             }
         }
 
+        public async Task<(IEnumerable<Employee>, int)> Filter(
+            DateTime? date, string? position, int? stationId,
+            string? sortField = "EmployeeId", bool sortDesc = false,
+            int page = 1, int pageSize = 2)
+        {
+            var orderBy = "EmployeeId";
+            if ("DateEmployed".Equals(sortField))
+                orderBy = "DateEmployed";
+            else if ("StationId".Equals(sortField))
+                orderBy = "StationId";
+
+            var sql = "udpFilterEmployees";
+
+            using var conn = new SqlConnection(_connStr);
+            var list = await conn.QueryAsync<Employee>(
+                sql,
+                new
+                {
+                    DateEmployed = date,
+                    Position = position,
+                    StationId = stationId,
+                    SortField = orderBy,
+                    SortDesc = sortDesc,
+                    Page = page,
+                    PageSize = pageSize
+                },
+                commandType: CommandType.StoredProcedure);
+
+            int totalCount = list?.FirstOrDefault()?.TotalCount ?? 0;
+
+            return (list ?? Enumerable.Empty<Employee>(), totalCount);
+        }
+
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
             using var conn = new SqlConnection(_connStr);

@@ -13,6 +13,7 @@ namespace ScooterManagementApp.DAL.Models
         public bool IsActive { get; set; }
         public byte[]? ProfilePicture { get; set; }
         public int StationId { get; set; }
+        public int? TotalCount { get; set; }
     }
 
 }

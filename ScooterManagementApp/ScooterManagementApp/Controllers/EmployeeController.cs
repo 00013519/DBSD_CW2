@@ -4,6 +4,7 @@ using ScooterManagementApp.DAL.Models;
 using ScooterManagementApp.DAL.Repositories;
 using ScooterManagementApp.Models;
 using System;
+using X.PagedList;
 
 namespace ScooterManagementApp.Controllers
 {
@@ -19,6 +20,7 @@ namespace ScooterManagementApp.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _employeeRepository.GetAllAsync();
+            list = list.ToPagedList(1, 3);
             return View(list);
         }
 
@@ -142,6 +144,31 @@ namespace ScooterManagementApp.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Filter(EmployeeFilterViewModel empFilterModel)
+        {
+            int totalCount;
+            var employees = await _employeeRepository.Filter(
+                empFilterModel.Date,
+                empFilterModel.Position,
+                empFilterModel.StationId,
+                empFilterModel.SortField,
+                empFilterModel.SortDesc,
+                empFilterModel.Page,
+                empFilterModel.PageSize);
+            totalCount = employees.Item2;
+            //empFilterModel.Employees = empFilterModel.Employees.ToPagedList(empFilterModel.Page, empFilterModel.PageSize);
+            empFilterModel.Employees = new StaticPagedList<Employee>(
+                employees.Item1,
+                empFilterModel.Page,
+                empFilterModel.PageSize,
+                totalCount);
+
+            // empFilterModel.SortDesc = !empFilterModel.SortDesc;
+
+            empFilterModel.TotalCount = totalCount;
+            return View(empFilterModel);
         }
         public async Task<FileResult?> ShowImage(int id)
         {

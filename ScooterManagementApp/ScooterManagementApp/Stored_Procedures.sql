@@ -90,3 +90,61 @@ begin
     end catch;
 end;
 go
+
+--filter
+create or alter procedure udpFilterEmployees(
+    @DateEmployed date,
+    @Position nvarchar(50),
+    @StationId int,
+    @SortField nvarchar(200) = 'EmployeeId',
+    @SortDesc bit = 0,
+    @Page int = 1,
+    @PageSize int = 2
+)
+as
+begin
+  declare @SortDir nvarchar(10) = ' ASC '
+  if @SortDesc = 1
+    set @SortDir = ' DESC '
+
+  declare @paramsDef nvarchar(2000) = '
+    @DateEmployed date,
+    @Position nvarchar(50),
+    @StationId int,
+    @PageSize int,
+    @Page int '
+
+  declare @sql nvarchar(2000) = '
+  select e.EmployeeId, e.FirstName, 
+  e.LastName, e.DateEmployed, e.Position, e.Salary,
+  e.StationId, concat(s.City , '' , '', s.District, '' , '', s.Street) as "Station Address",
+  (select count(*) from MaintenanceRecord where EmployeeId = e.EmployeeId) as "Total repairs",
+  count(*) over () TotalCount
+  from Employee e 
+  join Station s on e.StationId = s.StationId
+  where e.Position like concat(@Position, ''%'')
+            and e.StationId like concat(@StationId, ''%'')
+            and e.DateEmployed >= coalesce(@DateEmployed, ''1900-01-01'')
+  order by '+ @SortField + @SortDir +'
+  offset @PageSize * (@Page-1)  rows
+  fetch next @PageSize rows only'
+
+   exec sp_executesql @sql, @paramsDef,
+                            @DateEmployed = @DateEmployed,
+                            @Position = @Position,
+                            @StationId = @StationId,
+                            @PageSize = @PageSize,
+                            @Page = @Page
+end
+
+
+go 
+--test
+exec udpFilterEmployees
+  @DateEmployed = null,
+  @Position = null,
+  @StationId = null,
+  @SortField = 'e.Salary',
+  @SortDesc = 0,
+  @Page = 1,
+  @PageSize = 10

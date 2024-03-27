@@ -1,4 +1,6 @@
-﻿@model IEnumerable<ScooterManagementApp.DAL.Models.Employee>
+﻿@model IPagedList<ScooterManagementApp.DAL.Models.Employee>
+@using X.PagedList
+@using X.PagedList.Mvc.Core
 
 @{
     ViewData["Title"] = "Index";
@@ -84,3 +86,7 @@
 }
     </tbody>
 </table>
+@Html.PagedListPager(
+        Model,
+        page => Url.Action("Employee", "Filter",
+        new { page }))

@@ -44,6 +44,45 @@ namespace ScooterManagementApp.DAL.Repositories
             }
         }
 
+        public string ExportToJson(DateTime? dateEmployed, string? position, int? stationId)
+        {
+            using var conn = new SqlConnection(_connStr);
+            return conn.ExecuteScalar<string>(
+                "udpEmployeeExportToJson",
+                new
+                {
+                    DateEmployed = dateEmployed,
+                    Position = position,
+                    StationId = stationId
+                }, commandType: CommandType.StoredProcedure) ?? "";
+        }
+
+        public string ExportToXml(DateTime? dateEmployed, string? position, int? stationId)
+        {
+            using var conn = new SqlConnection(_connStr);
+            var parameters = new DynamicParameters();
+            parameters.AddDynamicParams(new
+            {
+                DateEmployed = dateEmployed,
+                Position = position,
+                StationId = stationId
+            });
+            parameters.Add(
+                "Results",
+                direction: ParameterDirection.Output,
+                dbType: DbType.String,
+                size: int.MaxValue
+                );
+
+            conn.Execute(
+                "udpEmployeeExportToXml",
+                commandType: CommandType.StoredProcedure,
+                param: parameters
+                );
+
+            return parameters.Get<string>("Results");
+        }
+
         public async Task<(IEnumerable<Employee>, int)> Filter(
             DateTime? date, string? position, int? stationId,
             string? sortField = "EmployeeId", bool sortDesc = false,
@@ -54,6 +93,8 @@ namespace ScooterManagementApp.DAL.Repositories
                 orderBy = "DateEmployed";
             else if ("StationId".Equals(sortField))
                 orderBy = "StationId";
+            else if ("Position".Equals(sortField))
+                orderBy = "Position";
 
             var sql = "udpFilterEmployees";
 

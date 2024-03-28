@@ -1,6 +1,4 @@
-﻿@model IPagedList<ScooterManagementApp.DAL.Models.Employee>
-@using X.PagedList
-@using X.PagedList.Mvc.Core
+﻿@model IEnumerable<ScooterManagementApp.DAL.Models.Employee>
 
 @{
     ViewData["Title"] = "Index";
@@ -10,6 +8,8 @@
 
 <p>
     <a asp-action="Create">Create New</a>
+    <a asp-action="ExportToJson">Export to JSON</a>
+    <a asp-action="ExportToXml">Export to XML</a>
 </p>
 <table class="table">
     <thead>
@@ -86,7 +86,3 @@
 }
     </tbody>
 </table>
-@Html.PagedListPager(
-        Model,
-        page => Url.Action("Employee", "Filter",
-        new { page }))

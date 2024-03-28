@@ -148,3 +148,87 @@ exec udpFilterEmployees
   @SortDesc = 0,
   @Page = 1,
   @PageSize = 10
+go
+
+
+--json export
+create or alter procedure udpEmployeeExportToJson(
+   @DateEmployed date = null,
+    @Position nvarchar(50) = null,
+    @StationId int = null
+) as
+begin
+  declare @tab as table (
+  EmployeeId int,
+    FirstName nvarchar(200),
+    LastName nvarchar(200),
+    DateEmployed date,
+    Position nvarchar(50),
+    Salary decimal(10, 2),
+    StationId int,
+    "Station Address" nvarchar(200),
+    "Total repairs" int,
+    TotalCount int
+  )
+
+  insert into @tab
+   exec udpFilterEmployees
+   @DateEmployed = null,
+  @Position = null,
+  @StationId = null,
+  @SortField = 'e.Salary',
+  @SortDesc = 0,
+  @Page = 1,
+  @PageSize = 10
+
+  select * from @tab
+  for json path
+end
+
+
+go
+
+--test
+exec udpEmployeeExportToJson
+
+
+--xml export
+go
+create or alter procedure udpEmployeeExportToXml(
+  @DateEmployed date = null,
+    @Position nvarchar(50) = null,
+    @StationId int = null,
+  @Results nvarchar(2000) OUT
+) as
+begin
+  declare @tab as table (
+   EmployeeId int,
+    FirstName nvarchar(200),
+    LastName nvarchar(200),
+    DateEmployed date,
+    Position nvarchar(50),
+    Salary decimal(10, 2),
+    StationId int,
+    StationAddress nvarchar(200),
+    TotalRepairs int,
+    TotalCount int
+  )
+
+  insert into @tab
+   exec udpFilterEmployees
+    @DateEmployed = null,
+      @Position = null,
+      @StationId = null,
+      @SortField = 'e.Salary',
+      @SortDesc = 0,
+      @Page = 1,
+      @PageSize = 10
+
+  set @Results = (select * from @tab
+                  for xml path('Employee'), root('Employees'))
+end
+--test
+go
+declare @res nvarchar(2000)
+exec udpEmployeeExportToXml @Results = @res OUT
+print @res

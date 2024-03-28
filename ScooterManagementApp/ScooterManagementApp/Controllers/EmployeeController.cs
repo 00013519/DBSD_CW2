@@ -4,6 +4,7 @@ using ScooterManagementApp.DAL.Models;
 using ScooterManagementApp.DAL.Repositories;
 using ScooterManagementApp.Models;
 using System;
+using System.Text;
 using X.PagedList;
 
 namespace ScooterManagementApp.Controllers
@@ -20,7 +21,6 @@ namespace ScooterManagementApp.Controllers
         public async Task<IActionResult> Index()
         {
             var list = await _employeeRepository.GetAllAsync();
-            list = list.ToPagedList(1, 3);
             return View(list);
         }
 
@@ -158,17 +158,35 @@ namespace ScooterManagementApp.Controllers
                 empFilterModel.Page,
                 empFilterModel.PageSize);
             totalCount = employees.Item2;
-            //empFilterModel.Employees = empFilterModel.Employees.ToPagedList(empFilterModel.Page, empFilterModel.PageSize);
+
             empFilterModel.Employees = new StaticPagedList<Employee>(
                 employees.Item1,
                 empFilterModel.Page,
                 empFilterModel.PageSize,
                 totalCount);
 
-            // empFilterModel.SortDesc = !empFilterModel.SortDesc;
-
             empFilterModel.TotalCount = totalCount;
             return View(empFilterModel);
+        }
+        public IActionResult ExportToJson()
+        {
+            string json = _employeeRepository.ExportToJson(null, null, null);
+            return File(
+                Encoding.UTF8.GetBytes(json),
+                "application/json",
+                $"ScooterDb_Employees_{DateTime.Now}.json"
+                );
+        }
+
+        public IActionResult ExportToXml()
+        {
+            string xml = _employeeRepository.ExportToXml(null, null, null);
+
+            return File(
+                Encoding.UTF8.GetBytes(xml),
+                "text/xml",
+                $"ScooterDb_Employees_{DateTime.Now}.xml"
+                );
         }
         public async Task<FileResult?> ShowImage(int id)
         {

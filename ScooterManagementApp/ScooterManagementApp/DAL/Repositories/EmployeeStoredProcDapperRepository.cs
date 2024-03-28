@@ -150,28 +150,16 @@ namespace ScooterManagementApp.DAL.Repositories
                 emp.StationId
             });
 
-            parameters.Add(
-                "@Errors",
-                direction: ParameterDirection.Output,
-                dbType: DbType.String,
-                size: 1000);
-            parameters.Add(
-                "RetVal",
-                direction: ParameterDirection.ReturnValue,
-                dbType: DbType.Int32);
+            var result = await conn.QueryFirstOrDefaultAsync
+                <(int EmployeeId, int ResultCode, string ErrorMessage)>
+                ("udpInsertEmployee", parameters, commandType: CommandType.StoredProcedure);
 
-            int id = await conn.ExecuteScalarAsync<int>(
-                "udpInsertEmployee",
-                commandType: CommandType.StoredProcedure,
-                param: parameters
-                );
-
-            if (parameters.Get<int>("RetVal") != 0)
+            if (result.ResultCode != 0)
             {
-                throw new Exception(parameters.Get<string>("Errors"));
+                throw new Exception(result.ErrorMessage);
             }
 
-            return id;
+            return result.EmployeeId;
         }
 
         public async Task Update(Employee emp)
@@ -190,25 +178,14 @@ namespace ScooterManagementApp.DAL.Repositories
                 emp.ProfilePicture,
                 emp.StationId
             });
-            parameters.Add(
-                "@Errors",
-                direction: ParameterDirection.Output,
-                dbType: DbType.String,
-                size: 1000);
-            parameters.Add(
-                "RetVal",
-                direction: ParameterDirection.ReturnValue,
-                dbType: DbType.Int32);
 
-            int id = await conn.ExecuteScalarAsync<int>(
-                "udpUpdateEmployee",
-                commandType: CommandType.StoredProcedure,
-                param: parameters
-                );
+            var result = await conn.QueryFirstOrDefaultAsync
+                <(int ResultCode, string ErrorMessage)>
+                ("udpUpdateEmployee", parameters, commandType: CommandType.StoredProcedure);
 
-            if (parameters.Get<int>("RetVal") != 0)
+            if (result.ResultCode != 0)
             {
-                throw new Exception(parameters.Get<string>("Errors"));
+                throw new Exception(result.ErrorMessage);
             }
         }
     }

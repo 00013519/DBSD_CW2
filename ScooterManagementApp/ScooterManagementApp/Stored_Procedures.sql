@@ -8,7 +8,7 @@ end;
 go
 
 -- Insert Employee
-create or alter procedure udpInsertEmployee(
+create or alter procedure udpInsertEmployee
     @FirstName nvarchar(200),
     @LastName nvarchar(200),
     @DateEmployed date,
@@ -16,26 +16,26 @@ create or alter procedure udpInsertEmployee(
     @Salary decimal(10, 2),
     @IsActive bit,
     @ProfilePicture varbinary(max),
-    @StationId int,
-    @Errors nvarchar(1000) out
-)
+    @StationId int
 as
 begin
     begin try
-        insert into Employee(FirstName, LastName, DateEmployed, Position, Salary, IsActive, ProfilePicture, StationId)
-        output inserted.EmployeeId
-        values (@FirstName, @LastName, @DateEmployed, @Position, @Salary, @IsActive, @ProfilePicture, @StationId);
+        declare @EmployeeId table (Id int);
 
-        return (0);
+        insert into Employee 
+            (FirstName, LastName, DateEmployed, Position, Salary, IsActive, ProfilePicture, StationId)
+        output inserted.EmployeeId into @EmployeeId
+        values 
+            (@FirstName, @LastName, @DateEmployed, @Position, @Salary, @IsActive, @ProfilePicture, @StationId);
+
+        select Id as EmployeeId, 0 AS ResultCode, '' AS ErrorMessage FROM @EmployeeId;
     end try
     begin catch
-        set @Errors = error_message();
-        return (1);
+        select null as EmployeeId, 1 AS ResultCode, ERROR_MESSAGE() as ErrorMessage;
     end catch;
 end;
-go
 
--- Update Employee
+go
 create or alter procedure udpUpdateEmployee(
     @EmployeeId int,
     @FirstName nvarchar(200),
@@ -45,8 +45,7 @@ create or alter procedure udpUpdateEmployee(
     @Salary decimal(10, 2),
     @IsActive bit,
     @ProfilePicture varbinary(max),
-    @StationId int,
-    @Errors nvarchar(1000) out
+    @StationId int
 )
 as
 begin
@@ -61,14 +60,13 @@ begin
             ProfilePicture = @ProfilePicture,
             StationId = @StationId
         where EmployeeId = @EmployeeId;
-
-        return (0);
+        
+        select 0 AS ResultCode, '' AS ErrorMessage;
     end try
     begin catch
-        set @Errors = error_message();
-        return (1);
+        select 1 AS ResultCode, ERROR_MESSAGE() as ErrorMessage;
     end catch;
-end;
+end
 go
 
 -- Delete Employee
@@ -185,11 +183,7 @@ begin
   for json path
 end
 
-
 go
-
---test
-exec udpEmployeeExportToJson
 
 
 --xml export
@@ -198,7 +192,7 @@ create or alter procedure udpEmployeeExportToXml(
   @DateEmployed date = null,
     @Position nvarchar(50) = null,
     @StationId int = null,
-  @Results nvarchar(2000) OUT
+    @Results nvarchar(max) OUT
 ) as
 begin
   declare @tab as table (
@@ -227,8 +221,4 @@ begin
   set @Results = (select * from @tab
                   for xml path('Employee'), root('Employees'))
 end
---test
 go
-declare @res nvarchar(2000)
-exec udpEmployeeExportToXml @Results = @res OUT
-print @res

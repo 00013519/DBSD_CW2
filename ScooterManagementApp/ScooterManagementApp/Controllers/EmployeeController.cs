@@ -55,8 +55,9 @@ namespace ScooterManagementApp.Controllers
                     IsActive = emp.IsActive,
                     StationId = emp.StationId
                 };
-                int id = await _employeeRepository.Insert(employee);
-                return RedirectToAction("Details", new { id = id });
+                await _employeeRepository.Insert(employee);
+                return RedirectToAction("Index");
+                // return RedirectToAction("Details", new { id = id });
             }
             catch (Exception ex)
             {

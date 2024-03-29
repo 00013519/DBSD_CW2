@@ -60,7 +60,10 @@
                 @Html.ActionLink("Station Id", "Filter", new { Page = Model.Page, SortField = "StationId", SortDesc = !Model.SortDesc })
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TotalCount)
+                Station Address
+            </th>
+            <th>
+                Total Repairs
             </th>
             <th></th>
         </tr>
@@ -90,7 +93,10 @@
                 @Html.DisplayFor(modelItem => item.StationId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TotalCount)
+                @Html.DisplayFor(modelItem => item.StationAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalRepairs)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { id=item.EmployeeId }) |

@@ -4,14 +4,14 @@ namespace ScooterManagementApp.DAL.Repositories
 {
     public interface IEmployeeRepository
     {
-        //IEnumerable<Employee> ImportFromXml(string xml);
+        Task<IEnumerable<Employee>> ImportFromXml(string xml);
         //IEnumerable<Employee> ImportFromJson(string json);
-        string ExportToXml(
+        Task<string> ExportToXml(
             DateTime? dateEmployed,
             string? position,
             int? stationId);
 
-        string ExportToJson(
+        Task<string> ExportToJson(
             DateTime? dateEmployed,
             string? position,
             int? stationId);

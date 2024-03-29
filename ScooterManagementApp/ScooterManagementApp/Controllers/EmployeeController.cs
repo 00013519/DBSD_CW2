@@ -169,9 +169,9 @@ namespace ScooterManagementApp.Controllers
             empFilterModel.TotalCount = totalCount;
             return View(empFilterModel);
         }
-        public IActionResult ExportToJson()
+        public async Task<IActionResult> ExportToJson()
         {
-            string json = _employeeRepository.ExportToJson(null, null, null);
+            string json = await _employeeRepository.ExportToJson(null, null, null);
             return File(
                 Encoding.UTF8.GetBytes(json),
                 "application/json",
@@ -179,15 +179,29 @@ namespace ScooterManagementApp.Controllers
                 );
         }
 
-        public IActionResult ExportToXml()
+        public async Task<IActionResult> ExportToXml()
         {
-            string xml = _employeeRepository.ExportToXml(null, null, null);
+            string xml = await _employeeRepository.ExportToXml(null, null, null);
 
             return File(
                 Encoding.UTF8.GetBytes(xml),
                 "text/xml",
                 $"ScooterDb_Employees_{DateTime.Now}.xml"
                 );
+        }
+        public IActionResult ImportFromXml()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> ImportFromXml(IFormFile file)
+        {
+            using var stream = file.OpenReadStream();
+            using var rdr = new StreamReader(stream);
+            string xml = rdr.ReadToEnd();
+
+            var employees = await _employeeRepository.ImportFromXml(xml);
+            return View(employees);
         }
         public async Task<FileResult?> ShowImage(int id)
         {

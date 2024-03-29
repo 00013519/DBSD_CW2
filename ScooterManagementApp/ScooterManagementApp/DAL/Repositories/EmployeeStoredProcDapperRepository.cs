@@ -44,10 +44,10 @@ namespace ScooterManagementApp.DAL.Repositories
             }
         }
 
-        public string ExportToJson(DateTime? dateEmployed, string? position, int? stationId)
+        public async Task<string> ExportToJson(DateTime? dateEmployed, string? position, int? stationId)
         {
             using var conn = new SqlConnection(_connStr);
-            return conn.ExecuteScalar<string>(
+            return await conn.ExecuteScalarAsync<string>(
                 "udpEmployeeExportToJson",
                 new
                 {
@@ -57,7 +57,7 @@ namespace ScooterManagementApp.DAL.Repositories
                 }, commandType: CommandType.StoredProcedure) ?? "";
         }
 
-        public string ExportToXml(DateTime? dateEmployed, string? position, int? stationId)
+        public async Task<string> ExportToXml(DateTime? dateEmployed, string? position, int? stationId)
         {
             using var conn = new SqlConnection(_connStr);
             var parameters = new DynamicParameters();
@@ -74,7 +74,7 @@ namespace ScooterManagementApp.DAL.Repositories
                 size: int.MaxValue
                 );
 
-            conn.Execute(
+            await conn.ExecuteAsync(
                 "udpEmployeeExportToXml",
                 commandType: CommandType.StoredProcedure,
                 param: parameters
@@ -132,6 +132,16 @@ namespace ScooterManagementApp.DAL.Repositories
             var employees = await GetAllAsync();
             var emp = employees.FirstOrDefault(e=> e.EmployeeId == id);
             return emp;
+        }
+
+        public async Task<IEnumerable<Employee>> ImportFromXml(string xml)
+        {
+            using var conn = new SqlConnection(_connStr);
+            return await conn.QueryAsync<Employee>(
+                 "udpEmployeeImportFromXml",
+                 commandType: CommandType.StoredProcedure,
+                 param: new { xml = xml }
+                 );
         }
 
         public async Task<int> Insert(Employee emp)

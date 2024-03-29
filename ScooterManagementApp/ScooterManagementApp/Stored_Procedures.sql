@@ -115,8 +115,8 @@ begin
   declare @sql nvarchar(2000) = '
   select e.EmployeeId, e.FirstName, 
   e.LastName, e.DateEmployed, e.Position, e.Salary,
-  e.StationId, concat(s.City , '' , '', s.District, '' , '', s.Street) as "Station Address",
-  (select count(*) from MaintenanceRecord where EmployeeId = e.EmployeeId) as "Total repairs",
+  e.StationId, concat(s.City , '' , '', s.District, '' , '', s.Street) as "StationAddress",
+  (select count(*) from MaintenanceRecord where EmployeeId = e.EmployeeId) as "TotalRepairs",
   count(*) over () TotalCount
   from Employee e 
   join Station s on e.StationId = s.StationId
@@ -222,3 +222,49 @@ begin
                   for xml path('Employee'), root('Employees'))
 end
 go
+
+create or alter procedure udpScooterStationImportFromXml(@xml nvarchar(max))
+as
+begin
+    declare @DocHandle int
+    exec sp_xml_preparedocument @DocHandle OUT, @xml
+
+    insert into Station (City, District, Street, Capacity, ChargersAmount)
+    OUTPUT inserted.StationId, inserted.City, inserted.District, inserted.Street, inserted.ChargersAmount, inserted.Capacity
+    
+    select 
+        City,
+        District,
+        Street,
+        Capacity,
+        ChargersAmount
+    from openxml(@DocHandle, N'/Scooters/Scooter/Station', 1)
+    with
+    (
+        City varchar(100) '@City',
+        District varchar(100) '@District',
+        Street varchar(100) '@Street',
+        Capacity int '@Capacity',
+        ChargersAmount int '@ChargersAmount'
+    )
+    
+    insert into Scooter (Model, BatteryCapacity, MaxSpeed, Status, StationId)
+    output inserted.*
+    select 
+        Model,
+        BatteryCapacity,
+        MaxSpeed,
+        Status,
+        StationId 
+    from openxml(@DocHandle, N'/Scooters/Scooter', 1)
+    with
+    (
+        Model varchar(100) '@Model',
+        BatteryCapacity decimal(5, 2) '@BatteryCapacity',
+        MaxSpeed int '@MaxSpeed',
+        Status varchar(50) '@Status',
+        StationId int 'Station/@StationId'
+    )
+
+    exec sp_xml_removedocument @DocHandle 
+end

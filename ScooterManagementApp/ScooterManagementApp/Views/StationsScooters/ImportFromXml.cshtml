@@ -1,0 +1,101 @@
+﻿@model ScooterManagementApp.Models.StationsScootersImportModel
+
+@{
+    ViewData["Title"] = "ImportFromXml";
+}
+
+<h1>Import From Xml</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="ImportFromXml" enctype="multipart/form-data" method="post">
+            <div class="form-group">
+                <label class="control-label">XML File</label>
+                <input name="file" class="form-control" type="file" />
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="ImportFromXml" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Station ID
+            </th>
+            <th>
+                Station Address
+            </th>
+            <th>
+                Capacity
+            </th>
+            <th>
+                Chargers Amount
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Stations)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StationId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.City), @Html.DisplayFor(modelItem => item.District), @Html.DisplayFor(modelItem => item.Street)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Capacity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ChargersAmount)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Scooter ID
+            </th>
+            <th>
+                Model
+            </th>
+            <th>
+                Characteristics
+            </th>
+            <th>
+                Station ID
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Scooters)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ScooterId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Model)
+                </td>
+                <td>
+                    Battery Capacity: @Html.DisplayFor(modelItem => item.BatteryCapacity), Maximum Speed: @Html.DisplayFor(modelItem => item.MaxSpeed)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StationId)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

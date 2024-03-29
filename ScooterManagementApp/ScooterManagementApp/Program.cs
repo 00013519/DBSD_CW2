@@ -12,6 +12,10 @@ string connStr = config.GetConnectionString("Scooter")
 builder.Services.AddScoped<IEmployeeRepository>(
     x => new EmployeeStoredProcDapperRepository(connStr)
     );
+builder.Services.AddScoped<IStationsScootersRepository>(
+    x => new StationsScootersReporitory(connStr)
+    );
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

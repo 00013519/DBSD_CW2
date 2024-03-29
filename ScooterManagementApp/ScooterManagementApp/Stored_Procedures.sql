@@ -223,15 +223,109 @@ begin
 end
 go
 
+-- Import JSON
+go
+create or alter procedure udpScooterStationImportFromJson(@json nvarchar(max))
+as
+begin
+    DECLARE @InsertedStations TABLE
+    (
+        StationId INT,
+        City NVARCHAR(100),
+        District NVARCHAR(100),
+        Street NVARCHAR(100),
+        ChargersAmount INT,
+        Capacity INT
+    );
+
+    insert into Station (City, District, Street, Capacity, ChargersAmount)
+    output inserted.StationId, inserted.City, inserted.District, inserted.Street, inserted.ChargersAmount, inserted.Capacity
+    into @InsertedStations
+    select 
+        City,
+        District,
+        Street,
+        Capacity,
+        ChargersAmount
+    from openjson(@json, N'$.Scooters')
+    with
+    (
+        City varchar(100),
+        District varchar(100),
+        Street varchar(100),
+        Capacity int,
+        ChargersAmount int
+    )
+
+    DECLARE @InsertingScooters TABLE
+    (
+        ScooterID INT identity(1,1),
+        Model NVARCHAR(255),
+        BatteryCapacity DECIMAL(7, 2),
+        MaxSpeed INT,
+        Status NVARCHAR(50),
+        StationID INT
+    );
+    insert into @InsertingScooters ( Model, BatteryCapacity, MaxSpeed, Status, StationId)
+    select 
+        Model,
+        BatteryCapacity,
+        MaxSpeed,
+        Status,
+        StationId 
+    from openjson(@json, N'$.Scooters')
+    with
+    (
+        ScooterId int,
+        Model varchar(100),
+        BatteryCapacity decimal(5, 2),
+        MaxSpeed int,
+        Status varchar(50),
+        StationID int
+    );
+    UPDATE sc
+    SET sc.StationID = st.StationId
+    FROM @InsertingScooters AS sc
+    JOIN (
+    SELECT StationId, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS RowNum
+    FROM @InsertedStations
+    ) AS st ON sc.ScooterID = st.RowNum;
+
+
+    insert into Scooter (Model, BatteryCapacity, MaxSpeed, Status, StationId)
+    select 
+        Model,
+        BatteryCapacity,
+        MaxSpeed,
+        Status,
+        StationId 
+    from @InsertingScooters;
+    
+
+    select * from @InsertedStations
+    select * from @InsertingScooters
+
+end
+
+go
+-- Import XML
 create or alter procedure udpScooterStationImportFromXml(@xml nvarchar(max))
 as
 begin
     declare @DocHandle int
     exec sp_xml_preparedocument @DocHandle OUT, @xml
-
+    DECLARE @InsertedStations TABLE
+    (
+        StationId INT,
+        City NVARCHAR(100),
+        District NVARCHAR(100),
+        Street NVARCHAR(100),
+        ChargersAmount INT,
+        Capacity INT
+    );
     insert into Station (City, District, Street, Capacity, ChargersAmount)
     OUTPUT inserted.StationId, inserted.City, inserted.District, inserted.Street, inserted.ChargersAmount, inserted.Capacity
-    
+    into @InsertedStations
     select 
         City,
         District,
@@ -248,8 +342,17 @@ begin
         ChargersAmount int '@ChargersAmount'
     )
     
-    insert into Scooter (Model, BatteryCapacity, MaxSpeed, Status, StationId)
-    output inserted.*
+     DECLARE @InsertingScooters TABLE
+    (
+        ScooterID INT identity(1,1),
+        Model NVARCHAR(255),
+        BatteryCapacity DECIMAL(7, 2),
+        MaxSpeed INT,
+        Status NVARCHAR(50),
+        StationID INT
+    );
+
+    insert into @InsertingScooters (Model, BatteryCapacity, MaxSpeed, Status, StationId)
     select 
         Model,
         BatteryCapacity,
@@ -266,5 +369,27 @@ begin
         StationId int 'Station/@StationId'
     )
 
+    UPDATE sc
+    SET sc.StationID = st.StationId
+    FROM @InsertingScooters AS sc
+    JOIN (
+    SELECT StationId, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS RowNum
+    FROM @InsertedStations
+    ) AS st ON sc.ScooterID = st.RowNum;
+
+
+    insert into Scooter (Model, BatteryCapacity, MaxSpeed, Status, StationId)
+    select 
+        Model,
+        BatteryCapacity,
+        MaxSpeed,
+        Status,
+        StationId 
+    from @InsertingScooters;
+
+    select * from @InsertedStations
+    select * from @InsertingScooters
+
     exec sp_xml_removedocument @DocHandle 
 end
+go

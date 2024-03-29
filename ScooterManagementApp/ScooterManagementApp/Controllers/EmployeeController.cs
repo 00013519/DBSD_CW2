@@ -57,7 +57,6 @@ namespace ScooterManagementApp.Controllers
                 };
                 await _employeeRepository.Insert(employee);
                 return RedirectToAction("Index");
-                // return RedirectToAction("Details", new { id = id });
             }
             catch (Exception ex)
             {
@@ -188,20 +187,6 @@ namespace ScooterManagementApp.Controllers
                 "text/xml",
                 $"ScooterDb_Employees_{DateTime.Now}.xml"
                 );
-        }
-        public IActionResult ImportFromXml()
-        {
-            return View();
-        }
-        [HttpPost]
-        public async Task<IActionResult> ImportFromXml(IFormFile file)
-        {
-            using var stream = file.OpenReadStream();
-            using var rdr = new StreamReader(stream);
-            string xml = rdr.ReadToEnd();
-
-            var employees = await _employeeRepository.ImportFromXml(xml);
-            return View(employees);
         }
         public async Task<FileResult?> ShowImage(int id)
         {

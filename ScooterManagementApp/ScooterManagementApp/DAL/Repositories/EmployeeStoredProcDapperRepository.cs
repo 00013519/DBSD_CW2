@@ -133,17 +133,6 @@ namespace ScooterManagementApp.DAL.Repositories
             var emp = employees.FirstOrDefault(e=> e.EmployeeId == id);
             return emp;
         }
-
-        public async Task<IEnumerable<Employee>> ImportFromXml(string xml)
-        {
-            using var conn = new SqlConnection(_connStr);
-            return await conn.QueryAsync<Employee>(
-                 "udpEmployeeImportFromXml",
-                 commandType: CommandType.StoredProcedure,
-                 param: new { xml = xml }
-                 );
-        }
-
         public async Task<int> Insert(Employee emp)
         {
             using var conn = new SqlConnection(_connStr);
@@ -198,5 +187,6 @@ namespace ScooterManagementApp.DAL.Repositories
                 throw new Exception(result.ErrorMessage);
             }
         }
+
     }
 }
